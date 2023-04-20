@@ -289,7 +289,7 @@ class Convert
                 // And we need to merge the general options (such as quality etc) into the option for the specific converter
 
                 $generalWebpConvertOptions = Config::generateWodOptionsFromConfigObj($config)['webp-convert']['convert'];
-                $converterSpecificWebpConvertOptions = isset($converter['options']) ? $converter['options'] : [];
+                $converterSpecificWebpConvertOptions = $converter['options'];
 
                 $webpConvertOptions = array_merge($generalWebpConvertOptions, $converterSpecificWebpConvertOptions);
                 unset($webpConvertOptions['converters']);
