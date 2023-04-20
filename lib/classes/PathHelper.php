@@ -251,7 +251,7 @@ class PathHelper
     public static function findClosestExistingFolderSymLinksExpanded($input) {
 
         // The strategy is to first try the supplied directory. If it fails, try the parent, etc.
-        $dir = $input;        
+        $dir = $input;
 
         // We count the levels up to avoid infinite loop - as good practice. It ought not to get that far
         $levelsUp = 0;
