@@ -251,7 +251,7 @@ class PathHelper
     public static function findClosestExistingFolderSymLinksExpanded($input) {
 
         // The strategy is to first try the supplied directory. If it fails, try the parent, etc.
-        $dir = $input;
+        $dir = $input;        
 
         // We count the levels up to avoid infinite loop - as good practice. It ought not to get that far
         $levelsUp = 0;
@@ -323,11 +323,11 @@ class PathHelper
      */
     public static function isPathWithinExistingDirPath($path, $dirPath)
     {
-        if ($path == $dirPath) {
+        if (wp_normalize_path($path) == wp_normalize_path($dirPath)) {
             return true;
         }
         // See if $filePath begins with $dirPath + '/'.
-        if (strpos($path, $dirPath . '/') === 0) {
+        if (strpos(wp_normalize_path($path), wp_normalize_path($dirPath) . '/') === 0) {
             return true;
         }
 

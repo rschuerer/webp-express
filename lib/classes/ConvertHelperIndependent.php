@@ -5,7 +5,7 @@ This class is made to not be dependent on Wordpress functions and must be kept l
 It is used by webp-on-demand.php. It is also used for bulk conversion.
 */
 namespace WebPExpress;
-
+ 
 use \WebPConvert\WebPConvert;
 use \WebPConvert\Convert\ConverterFactory;
 use \WebPConvert\Exceptions\WebPConvertException;
@@ -14,6 +14,23 @@ use \WebPConvert\Loggers\BufferLogger;
 use \WebPExpress\FileHelper;
 use \WebPExpress\SanityCheck;
 use \WebPExpress\SanityException;
+
+function wp_normalize_path( $path ) {
+    $wrapper = '';
+    // Standardize all paths to use '/'.
+    $path = str_replace( '\\', '/', $path );
+
+    // Replace multiple slashes down to a singular, allowing for network shares having two slashes.
+    $path = preg_replace( '|(?<=.)/+|', '/', $path );
+
+    // Windows paths should uppercase the drive letter.
+    if ( ':' === substr( $path, 1, 1 ) ) {
+        $path = ucfirst( $path );
+    }
+
+    return $wrapper . $path;
+}
+
 
 class ConvertHelperIndependent
 {
@@ -338,13 +355,19 @@ class ConvertHelperIndependent
                 //   ie 'uploads/2018/07/hello.jpg.webp'.
                 //   The first path component is the root id, the rest is the relative path to the source.
 
-                $closestExistingResolved = PathHelper::findClosestExistingFolderSymLinksExpanded($destination);
+                if(function_exists('wp_normalize_path'))
+                {
+                    $test = "jjj";
+                    $test = wp_normalize_path($destination);
+                }
+
+                $closestExistingResolved = PathHelper::findClosestExistingFolderSymLinksExpanded(wp_normalize_path($destination));
                 $cacheRoot = $webExpressContentDirAbs . '/webp-images';
                 if ($closestExistingResolved == '') {
                     return false;
                 } else {
                     $cacheRootResolved = realpath($cacheRoot);
-                    if (strpos($closestExistingResolved . '/', $cacheRootResolved . '/') === 0) {
+                    if (strpos(wp_normalize_path($closestExistingResolved) . '/', wp_normalize_path($cacheRootResolved) . '/') === 0) {
 
                         // Create containing dir for destination
                         $containingDir = PathHelper::dirname($destination);
@@ -357,7 +380,7 @@ class ConvertHelperIndependent
                         $destinationResolved = $containingDirResolved . '/' . $filename;
                         $destinationRelToCacheRoot = substr($destinationResolved, strlen($cacheRootResolved) + 1);
 
-                        $parts = explode('/', $destinationRelToCacheRoot);
+                        $parts = explode('/', wp_normalize_path($destinationRelToCacheRoot));
                         $imageRoot = array_shift($parts);
                         $sourceRel = implode('/', $parts);
 
